@@ -11,3 +11,7 @@ options:
         type: string
         default: ''
         description: 'Override the default JAVA_OPTS to set memory limits etc.'
+    carte_password:
+          type: string
+          default: 'cluster'
+          description: 'The password used to connect to Carte.'

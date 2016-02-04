@@ -1,26 +1,57 @@
 # Overview
 
-This layered charm provides the same functionality as the 'ubuntu' charm with
-revision control tools preinstalled, as well as relations to other
-developer-oriented charms. It is useful as both a development environment and
-an endpoint for testing charms like 'openjdk' and 'ibm-xlc'.
+This charm provides Pentaho Data Integration 6 for Extract, Transform
+and Load operations flexibly on a single server.
 
-Source for this charm is available here:
+Pentaho Data Integration[http://pentaho.com] is an graphical ETL tool
+that can be used for building data flows and manipulation. Once the ETL
+has be written it can then be deployed and run on a higher powered server.
 
-https://github.com/juju-solutions/layer-ubuntu-devenv
+This charm provides actions that allow for running of a Job or Transformation
+directly on the server. It also provides the Carte webservice that allows
+users to run ETL code on the remote server from within the PDI GUI.
 
+To mataintain flexibility, this charm requires a Java charm to be 
+related to it, so administrators can pick their favourite "flavour"
+of Java.
 
 # Usage
 
-An example use case for this charm is to test Java JRE or Java SDK
-providers. This charm supports the `java` interface and serves as a
-simple principal charm that can be used to relate to a `java`
-subordinate. Deploy as follows:
+To deploy this PDI charm you run:
 
-    juju deploy cs:~kwmonroe/trusty/ubuntu-devenv
-    juju deploy cs:~kwmonroe/trusty/openjdk
-    juju add-relation ubuntu-devenv openjdk
+    juju deploy cs:~f-tom-n/trusty/pentahodataintegration pdi
+    juju deploy cs:~kwmonroe/trusty/openjdk java
+    juju deploy add-relation java pdi
 
+Deploying the PDI charm will create a server and install PDI, but it is not
+executable until you have deployed a Java charm and added the relation that
+will install Java on the container. This enables users to select an
+alternative JVM without having to make changes to the PDI charm or tear down
+the server.
+
+If you are planning on using Carte, make sure you expose the Carte port
+(9999) by default:
+
+    juju expose pdi
+
+To deploy a different version of PDI or download from a different mirror you 
+can update the pdi_url config value to point to a different PDI zip archive:
+    
+    setoptiondemo
+
+To change the port carte runs on, you can change the carte port:
+
+     setportdemo
+
+To override the default PDI JAVA_OPTS(memory limits etc) you can set an
+alternative value buy running:
+
+     setjavaopts
+
+To set an alternative Carte password, enter the unencypted version by 
+running:
+
+    setpassword
 
 # Limitations
 

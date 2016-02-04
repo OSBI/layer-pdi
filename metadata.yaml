@@ -1,12 +1,12 @@
 name: pentahodataintegration
-summary: Pentaho Data Integration ETL Toolkit
-maintainer: Kevin Monroe <kevin.monroe@canonical.com>
+summary: Pentaho Data Integration ETL Server and Runtime.
+maintainer: Tom Barber <tom@analytical-labs.com>
 description: |
-  This is the 'ubuntu' charm with revision control tools preinstalled,
-  as well as relations to other developer-oriented charms. It is useful
-  as both a development environment and an endpoint for testing charms
-  like 'openjdk' and 'ibm-xlc'.
-tags: [application_development]
+  This is the Pentaho Data Integration charm for Extract, Transform
+  and Load data operations. The charm will install Pentaho Data Integration
+  and configure and start the Carte server for optional remote operation and
+  management.
+tags: [data_management, etl, big_data]
 provides:
   java:
     interface: java

@@ -23,6 +23,9 @@ def install():
     au.install(hookenv.config()['pdi_url'], '/opt/')
     chownr('/opt/data-integration', 'etl', 'etl')
     os.chmod('/opt/data-integration/spoon.sh', stat.S_IEXEC)
+    os.chmod('/opt/data-integration/carte.sh', stat.S_IEXEC)
+    os.chmod('/opt/data-integration/kitchen.sh', stat.S_IEXEC)
+    os.chmod('/opt/data-integration/pan.sh', stat.S_IEXEC)
     status_set('maintenance', 'PDI Installed')
     set_state('pdi.installed')
 
