@@ -1,8 +1,1 @@
 includes: ['layer:basic', 'interface:java']
-options:
-  basic:
-    packages:
-      - bzr
-      - cvs
-      - git
-      - subversion

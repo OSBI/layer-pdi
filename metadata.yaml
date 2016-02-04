@@ -1,5 +1,5 @@
-name: ubuntu-devenv
-summary: Simple Ubuntu development and test environment
+name: pentahodataintegration
+summary: Pentaho Data Integration ETL Toolkit
 maintainer: Kevin Monroe <kevin.monroe@canonical.com>
 description: |
   This is the 'ubuntu' charm with revision control tools preinstalled,
