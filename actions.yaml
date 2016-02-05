@@ -1,0 +1,54 @@
+runjob:
+  description: Execute a Job that has been placed on the server.
+  params:
+     path:
+       type: string
+       description: Path to the job to be executed.
+     java_opts:
+       type: string
+       description: Override the default JAVA_OPTS
+     log_level:
+       type: string
+       description: The PDI logging level (Basic, Detailed, Debug, Rowlevel, Error, Nothing)
+     log_file:
+        type: string
+        description: The log file location
+     parameters:
+         type: string
+         description: The parameters defined in your PDI job.
+     cron_entry:
+         type: string
+         description: The cron execution time and date(optional if you would like to schedule an execution)
+  required: [path]
+  additionalProperties: true
+
+runtransformation:
+    description: Execute a Transformation that has been placed on the server.
+    params:
+        path:
+            type: string
+            description: Path of the Transformation to be executed.
+        java_opts:
+            type: string
+            description: Override the default JAVA_OPTS
+        log_level:
+            type: string
+            description: The PDI logging level (Basic, Detailed, Debug, Rowlevel, Error, Nothing)
+        log_file:
+            type: string
+            description: The log file location
+        parameters:
+            type: string
+            description: The parameters defined in your PDI job.
+        cron_entry:
+            type: string
+            description: The cron execution time and date(optional if you would like to schedule an execution)
+removeetlschedule:
+     description: Remove a scheduled ETL.
+     params:
+         cron_entry:
+            type: string
+            description: The cron execution time and date(optional if you would like to schedule an execution)
+         name:
+            type: string
+            description: The name of the ETL to remove(including .ktr or .kjb)
