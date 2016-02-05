@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -ex
+
+
+path=action-get path
+javaopts=action-get java_opts
+loglevel=action-get log_level
+logfile=action-get log_file
+params=action-get parameters
+cron=action-get cron-entry
+
+fullloglevel=''
+fulllogfile=''
+fullparams=''
+fulljavaopts=''
+
+
+if [ -z "${loglevel}" ]
+ then
+    fullloglevel="-level ${loglevel}"
+fi
+
+if [ -z "${logfile}" ]
+ then
+    fulllogfile="-logfile ${logfile}"
+fi
+
+if [ -z "${params}" ]
+ then
+    fullparams="-param ${params}"
+fi
+
+if [ -z "${javaopts}" ]
+ then
+    fulljavaopts="-param ${javaopts}"
+fi
+
+exe=${fulljavaopts} /opt/data-integration/pan.sh -file=${path} ${fullloglevel} ${fulllogfile} ${fullparams}
+
+  juju-log "Command to be executed is: ${path}"
+
+if [ -z "${cron}" ]
+ then
+  juju-log "Executing ETL: ${path}"
+  eval exe
+  action-set outcome="ETL execution finished"
+ else
+  juju-log "Scheduling ETL: ${path} at ${cron}"
+  echo "# /etc/cron.d/anacron: crontab entries for the anacron package
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+${cron}   etl    ${exe}
+" > /etc/cron.d/$(basename ${path})_$(cat /proc/sys/kernel/random/uuid)
+   action-set outcome="ETL scheduled"
+fi

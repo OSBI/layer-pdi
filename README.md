@@ -37,21 +37,21 @@ If you are planning on using Carte, make sure you expose the Carte port
 To deploy a different version of PDI or download from a different mirror you 
 can update the pdi_url config value to point to a different PDI zip archive:
     
-    setoptiondemo
+    juju set pdi pdi_url='http://.....' 
 
 To change the port carte runs on, you can change the carte port:
 
-     setportdemo
+     juju set pdi carte_port='9999'
 
 To override the default PDI JAVA_OPTS(memory limits etc) you can set an
 alternative value buy running:
 
-     setjavaopts
+     juju set pdi java_opts='-Xmx=4G'
 
 To set an alternative Carte password, enter the unencypted version by 
 running:
 
-    setpassword
+    juju set pdi carte_password='my_new_password'
 
 # Limitations
 
