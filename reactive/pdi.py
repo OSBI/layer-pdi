@@ -70,7 +70,8 @@ def start():
     try:
         check_call(['pgrep', '-f', 'carte.sh'])
     except CalledProcessError:
-        check_call(['su', 'etl', '-c', '"/opt/data-integration/carte.sh" 0.0.0.0 '+port+'&'], env=currentenv)
+        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh 0.0.0.0 '+port+' &'], env=currentenv,
+                   cwd="/opt/data-integration")
 
     hookenv.open_port(port)
     status_set('active', 'Carte is ready!')
