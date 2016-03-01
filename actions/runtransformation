@@ -2,12 +2,12 @@
 set -ex
 
 
-PATH=action-get path
-JAVAOPTS=action-get java_opts
-LOGLEVEL=action-get log_level
-LOGFILE=action-get log_file
-PARAMS=action-get parameters
-CRON=action-get cron-entry
+PATH=`action-get path`
+JAVAOPTS=`action-get java_opts`
+LOGLEVEL=`action-get log_level`
+LOGFILE=`action-get log_file`
+PARAMS=`action-get parameters`
+CRON=`action-get cron-entry`
 
 fullloglevel=''
 fulllogfile=''
