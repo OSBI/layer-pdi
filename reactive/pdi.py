@@ -11,7 +11,7 @@ from charms.reactive import when, when_not, set_state, remove_state, is_state
 from charms.reactive.helpers import data_changed
 from charmhelpers.core.templating import render
 from socket import gethostname;
-import charms.leadership
+from charms.leadership import leader_set, leader_get
 
 
 @when_not('java.ready')
