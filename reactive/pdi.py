@@ -118,8 +118,8 @@ def change_carte_password(pword):
 def add_leader_config():
     # leadership.leader_set(admin_password=pwgen())
     render('carte-config/master.xml.j2', '/opt/data-integration/pwd/carte-config-master.xml', {
-        'carte.port': hookenv.config('carte_port'),
-        'carte.hostname': gethostname()
+        'carteport': hookenv.config('carte_port'),
+        'cartehostname': gethostname()
     })
     leader_set(hostname=gethostname())
     leader_set(port=hookenv.config('carte_port'))
@@ -132,7 +132,7 @@ def add_leader_config():
 @when_not('leadership.set.hostname')
 def add_slave_config():
     render('carte-config/slave.xml.j2', '/opt/data-integration/pwd/carte-config-slave.xml', {
-        'carte.slave.port': hookenv.config('carte_port'),
-        'carte.slave.hostname': gethostname(),
-        'carte.master.hostname': leader_get('hostname')
+        'carteslaveport': hookenv.config('carte_port'),
+        'carteslavehostname': gethostname(),
+        'cartemasterhostname': leader_get('hostname')
     })

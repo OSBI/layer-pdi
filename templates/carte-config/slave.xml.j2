@@ -16,10 +16,10 @@
 
     <slaveserver>
       <name>master</name>
-      <hostname>{{ carte.master.hostname }}</hostname>
-      <port>{{ carte.master.port }}</port>
+      <hostname>{{ cartemasterhostname }}</hostname>
+      <port>{{ cartemasterport }}</port>
       <username>cluster</username>
-      <password>{{ carte.master.password }}</password>
+      <password>{{ cartemasterpassword }}</password>
       <master>Y</master>
     </slaveserver>
 
@@ -28,11 +28,11 @@
   <report_to_masters>Y</report_to_masters>
 
   <slaveserver>
-    <name>slave-{{ carte.slave.hostname }}</name>
-    <hostname>{{ carte.slave.hostname }}</hostname>
-    <port>{{ carte.slave.port }}</port>
+    <name>slave-{{ carteslavehostname }}</name>
+    <hostname>{{ carteslavehostname }}</hostname>
+    <port>{{ carteslaveport }}</port>
     <username>cluster</username>
-    <password>{{ carte.slave.password }}</password>
+    <password>{{ carteslavepassword }}</password>
     <master>N</master>
   </slaveserver>
 
