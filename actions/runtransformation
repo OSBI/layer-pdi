@@ -30,7 +30,7 @@ if [ -z "${PARAMS}" ]
     FULLPARAMS="-param ${PARAMS}"
 fi
 
-if [ -z "${JAVAOPTS}" ]
+if [ -z "${JAVAOPTS// }" ]
  then
     FULLJAVAOPTS="-param ${JAVAOPTS}"
 fi
