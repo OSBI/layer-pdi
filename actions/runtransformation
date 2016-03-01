@@ -35,21 +35,21 @@ if [ -z "${JAVAOPTS}" ]
     FULLJAVAOPTS="-param ${JAVAOPTS}"
 fi
 
-EXE=${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}
+ETLEXE=`${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}`
 
   juju-log "Command to be executed is: ${EXE}"
 
-if [ -z "${CRON}" ]
+if [ -z "${CRON}" ];
  then
-  juju-log "Executing ETL: ${EXE}"
-  eval ${EXE}
+  juju-log "Executing ETL: ${ETLEXE}"
+  eval ${ETLEXE}
   action-set outcome="ETL execution finished"
  else
   juju-log "Scheduling ETL: ${TRANSPATH} at ${CRON}"
   echo "# /etc/cron.d/anacron: crontab entries for the anacron package
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-${CRON}   etl    ${EXE}
+${CRON}   etl    ${ETLEXE}
 " > /etc/cron.d/$(basename ${TRANSPATH})_$(cat /proc/sys/kernel/random/uuid)
    action-set outcome="ETL scheduled"
 fi
