@@ -15,29 +15,25 @@ fullparams=''
 fulljavaopts=''
 
 
-if [ -z "${LOGLEVEL}" ]
- then
+if [ -n "${LOGLEVEL}" ]; then
     FULLLOGLEVEL="-level ${LOGLEVEL}"
 fi
 
-if [ -z "${LOGFILE}" ]
- then
+if [ -n "${LOGFILE}" ]; then
     FULLLOGFILE="-logfile ${LOGFILE}"
 fi
 
-if [ -z "${PARAMS}" ]
- then
+if [ -n "${PARAMS}" ]; then
     FULLPARAMS="-param ${PARAMS}"
 fi
 
-if [ -z "${JAVAOPTS// }" ]
- then
-    FULLJAVAOPTS="-param ${JAVAOPTS}"
+if [ -n "${JAVAOPTS}" ]; then
+    FULLJAVAOPTS="JAVA_OPTS=${JAVAOPTS}"
 fi
 
 ETLEXE="${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}"
 
-  juju-log "Command to be executed is: ${ETLEXE}"
+juju-log "Command to be executed is: ${ETLEXE}"
 
 if [ -z "${CRON}" ];
  then
