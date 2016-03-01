@@ -1,7 +1,7 @@
 import os
 import stat
-from shutil import rmtree
-from subprocess import check_call, CalledProcessError, call
+from shutil import rmtree, chown
+from subprocess import check_call, CalledProcessError, call, check_output
 
 from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import status_set
@@ -28,8 +28,9 @@ def install():
     au.install(hookenv.config()['pdi_url'], '/opt/')
     chownr('/opt/data-integration', 'etl', 'etl', chowntopdir=True)
     st = os.stat('/opt/data-integration/spoon.sh')
-    os.chmod('/opt/data-integration/spoon.sh', st.st_mode |stat.S_IEXEC)
+    os.chmod('/opt/data-integration/spoon.sh', st.st_mode | stat.S_IEXEC)
     os.chmod('/opt/data-integration/carte.sh', st.st_mode | stat.S_IEXEC)
+    os.chmod('/opt/data-integration/encr.sh', st.st_mode | stat.S_IEXEC)
     os.chmod('/opt/data-integration/kitchen.sh', st.st_mode | stat.S_IEXEC)
     os.chmod('/opt/data-integration/pan.sh', st.st_mode | stat.S_IEXEC)
     status_set('maintenance', 'PDI Installed')
@@ -44,10 +45,19 @@ def check_running(java):
         remove()
         install()
 
-    if data_changed('pdi.config', hookenv.config()):
+    if(data_changed('carte_password', hookenv.config())):
+        change_carte_password(hookenv.config('carte_password'))
+
+    if data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte'):
         restart(None)
-    else:
+    elif data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte') is False:
+        stop()
+        status_set('active', 'PDI Installed. Carte Server Disabled.')
+    elif hookenv.config('run_carte'):
         start()
+    elif hookenv.config('run_carte') is False:
+        stop()
+        status_set('active', 'PDI Installed. Carte Server Disabled.')
 
 
 @when('pdi.installed')
@@ -70,7 +80,7 @@ def start():
     try:
         check_call(['pgrep', '-f', 'carte.sh'])
     except CalledProcessError:
-        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh 0.0.0.0 '+port+' &'], env=currentenv,
+        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh 0.0.0.0 ' + port + ' &'], env=currentenv,
                    cwd="/opt/data-integration")
 
     hookenv.open_port(port)
@@ -83,3 +93,11 @@ def stop():
 
 def remove():
     rmtree('/opt/data-integration')
+
+
+def change_carte_password(pword):
+    process = check_output(['sh', '/opt/data-integration/encr.sh', '-carte', pword])
+    encrpword = process.splitlines()[-1]
+    with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
+        text_file.write("cluster: " + encrpword)
+    chown('/opt/data-integration/encr.sh', 'etl', 'etl')

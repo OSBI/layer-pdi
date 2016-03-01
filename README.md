@@ -21,7 +21,7 @@ To deploy this PDI charm you run:
 
     juju deploy cs:~f-tom-n/trusty/pentahodataintegration pdi
     juju deploy cs:~kwmonroe/trusty/openjdk java
-    juju deploy add-relation java pdi
+    juju add-relation java pdi
 
 Deploying the PDI charm will create a server and install PDI, but it is not
 executable until you have deployed a Java charm and added the relation that
@@ -48,7 +48,7 @@ alternative value buy running:
 
      juju set pdi java_opts='-Xmx=4G'
 
-To set an alternative Carte password, enter the unencypted version by 
+To set an alternative Carte password, enter the unencrypted version by 
 running:
 
     juju set pdi carte_password='my_new_password'

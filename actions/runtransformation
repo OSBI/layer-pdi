@@ -37,7 +37,7 @@ fi
 
 exe=${fulljavaopts} /opt/data-integration/pan.sh -file=${path} ${fullloglevel} ${fulllogfile} ${fullparams}
 
-  juju-log "Command to be executed is: ${path}"
+  juju-log "Command to be executed is: ${exe}"
 
 if [ -z "${cron}" ]
  then
