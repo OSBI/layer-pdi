@@ -7,8 +7,11 @@ from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import status_set
 from charmhelpers.core.host import adduser, chownr, mkdir
 from charmhelpers.fetch.archiveurl import ArchiveUrlFetchHandler
-from charms.reactive import when, when_not, set_state, remove_state
+from charms.reactive import when, when_not, set_state, remove_state, is_state
 from charms.reactive.helpers import data_changed
+from charmhelpers.core.templating import render
+from socket import gethostname;
+import charms.leadership
 
 
 @when_not('java.ready')
@@ -45,7 +48,7 @@ def check_running(java):
         remove()
         install()
 
-    if(data_changed('carte_password', hookenv.config())):
+    if (data_changed('carte_password', hookenv.config())):
         change_carte_password(hookenv.config('carte_password'))
 
     if data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte'):
@@ -80,8 +83,15 @@ def start():
     try:
         check_call(['pgrep', '-f', 'carte.sh'])
     except CalledProcessError:
-        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh 0.0.0.0 ' + port + ' &'], env=currentenv,
-                   cwd="/opt/data-integration")
+        if is_state('leader.is_leader'):
+            check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh '
+                                           '/opt/data-integration/pwd/carte-config-master.xml &'],
+                       env=currentenv, cwd="/opt/data-integration")
+        else:
+            check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh '
+                                           '/opt/data-integration/pwd/carte-config-slave.xml &'],
+                       env=currentenv, cwd="/opt/data-integration")
+
 
     hookenv.open_port(port)
     status_set('active', 'Carte is ready!')
@@ -101,3 +111,28 @@ def change_carte_password(pword):
     with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
         text_file.write("cluster: " + encrpword.decode('utf-8'))
     chown('/opt/data-integration/encr.sh', 'etl', 'etl')
+
+
+@when('leadership.is_leader')
+@when_not('leadership.set.config_file')
+def add_leader_config():
+    # leadership.leader_set(admin_password=pwgen())
+    render('templates/carte-config/master.xml.j2', '/opt/data-integration/pwd/carte-config-master.xml', {
+        'carte.port': hookenv.config('carte_port'),
+        'carte.hostname': gethostname()
+    })
+    leader_set(hostname=gethostname())
+    leader_set(port=hookenv.config('carte_port'))
+    leader_set(username='cluster')
+    leader_set(password=hookenv.config('carte_password'))
+
+
+
+@when_not('leadership.is_leader')
+@when_not('leadership.set.hostname')
+def add_slave_config():
+    render('templates/carte-config/slave.xml.j2', '/opt/data-integration/pwd/carte-config-slave.xml', {
+        'carte.slave.port': hookenv.config('carte_port'),
+        'carte.slave.hostname': gethostname(),
+        'carte.master.hostname': leader_get('hostname')
+    })
