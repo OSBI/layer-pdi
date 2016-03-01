@@ -99,5 +99,5 @@ def change_carte_password(pword):
     process = check_output(['sh', '/opt/data-integration/encr.sh', '-carte', pword])
     encrpword = process.splitlines()[-1]
     with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
-        text_file.write("cluster: " + encrpword)
+        text_file.write("cluster: " + encrpword.decode('utf-8'))
     chown('/opt/data-integration/encr.sh', 'etl', 'etl')
