@@ -35,7 +35,7 @@ if [ -z "${JAVAOPTS}" ]
     FULLJAVAOPTS="-param ${JAVAOPTS}"
 fi
 
-ETLEXE=`${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}`
+ETLEXE="${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}"
 
   juju-log "Command to be executed is: ${EXE}"
 
