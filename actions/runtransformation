@@ -41,8 +41,8 @@ EXE=${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEV
 
 if [ -z "${CRON}" ]
  then
-  juju-log "Executing ETL: ${TRANSPATH}"
-  eval EXE
+  juju-log "Executing ETL: ${EXE}"
+  eval ${EXE}
   action-set outcome="ETL execution finished"
  else
   juju-log "Scheduling ETL: ${TRANSPATH} at ${CRON}"
