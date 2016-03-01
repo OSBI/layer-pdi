@@ -37,7 +37,7 @@ fi
 
 ETLEXE="${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}"
 
-  juju-log "Command to be executed is: ${EXE}"
+  juju-log "Command to be executed is: ${ETLEXE}"
 
 if [ -z "${CRON}" ];
  then
