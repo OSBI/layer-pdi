@@ -2,7 +2,7 @@
 set -ex
 
 
-PATH=`action-get path`
+TRANSPATH=`action-get path`
 JAVAOPTS=`action-get java_opts`
 LOGLEVEL=`action-get log_level`
 LOGFILE=`action-get log_file`
@@ -35,21 +35,21 @@ if [ -z "${JAVAOPTS}" ]
     FULLJAVAOPTS="-param ${JAVAOPTS}"
 fi
 
-EXE=${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${PATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}
+EXE=${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLOGLEVEL} ${FULLLOGFILE} ${FULLPARAMS}
 
-  juju-log "Command to be executed is: ${exe}"
+  juju-log "Command to be executed is: ${EXE}"
 
 if [ -z "${CRON}" ]
  then
-  juju-log "Executing ETL: ${PATH}"
+  juju-log "Executing ETL: ${TRANSPATH}"
   eval EXE
   action-set outcome="ETL execution finished"
  else
-  juju-log "Scheduling ETL: ${PATH} at ${CRON}"
+  juju-log "Scheduling ETL: ${TRANSPATH} at ${CRON}"
   echo "# /etc/cron.d/anacron: crontab entries for the anacron package
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ${CRON}   etl    ${EXE}
-" > /etc/cron.d/$(basename ${PATH})_$(cat /proc/sys/kernel/random/uuid)
+" > /etc/cron.d/$(basename ${TRANSPATH})_$(cat /proc/sys/kernel/random/uuid)
    action-set outcome="ETL scheduled"
 fi
