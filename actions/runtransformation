@@ -42,7 +42,7 @@ ETLEXE="${FULLJAVAOPTS} /opt/data-integration/pan.sh -file=${TRANSPATH} ${FULLLO
 if [ -z "${CRON}" ];
  then
   juju-log "Executing ETL: ${ETLEXE}"
-  eval ${ETLEXE}
+  eval "${ETLEXE}"
   action-set outcome="ETL execution finished"
  else
   juju-log "Scheduling ETL: ${TRANSPATH} at ${CRON}"
