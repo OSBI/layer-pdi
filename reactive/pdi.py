@@ -120,6 +120,7 @@ def add_leader_config():
     set_state('pdi.leader_configured')
 
 @when_not('leadership.is_leader')
+@when('leadership.changed')
 def change_slave():
     render_slave_config()
     restart(None)
