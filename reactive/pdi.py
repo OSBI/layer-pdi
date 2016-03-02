@@ -108,7 +108,6 @@ def change_carte_password(pword):
     chown('/opt/data-integration/encr.sh', 'etl', 'etl')
 
 
-@when_not('pdi.leader_configured')
 @when('leadership.is_leader')
 def add_leader_config():
     render_master_config()
@@ -121,27 +120,44 @@ def add_leader_config():
     set_state('pdi.leader_configured')
 
 @when_not('leadership.is_leader')
-def add_slave_config():
-    render_slave_config()
-
-
-@when('leadership.changed')
-@when('leadership.is_leader')
-def change_leader():
-    leader_set(hostname=hookenv.unit_private_ip())
-    leader_set(public_ip=hookenv.unit_public_ip())
-    leader_set(port=hookenv.config('carte_port'))
-    leader_set(username='cluster')
-    leader_set(password=hookenv.config('carte_password'))
-    leader_set(init=True)
-    render_master_config()
-    restart(None)
-
-@when('leadership.changed')
-@when_not('leadership.is_leader')
 def change_slave():
     render_slave_config()
     restart(None)
+
+# @when_not('pdi.leader_configured')
+# @when('leadership.is_leader')
+# def add_leader_config():
+#     render_master_config()
+#     leader_set(hostname=hookenv.unit_private_ip())
+#     leader_set(public_ip=hookenv.unit_public_ip())
+#     leader_set(port=hookenv.config('carte_port'))
+#     leader_set(username='cluster')
+#     leader_set(password=hookenv.config('carte_password'))
+#     leader_set(init=True)
+#     set_state('pdi.leader_configured')
+#
+# @when_not('leadership.is_leader')
+# def add_slave_config():
+#     render_slave_config()
+#
+#
+# @when('leadership.changed')
+# @when('leadership.is_leader')
+# def change_leader():
+#     leader_set(hostname=hookenv.unit_private_ip())
+#     leader_set(public_ip=hookenv.unit_public_ip())
+#     leader_set(port=hookenv.config('carte_port'))
+#     leader_set(username='cluster')
+#     leader_set(password=hookenv.config('carte_password'))
+#     leader_set(init=True)
+#     render_master_config()
+#     restart(None)
+#
+# @when('leadership.changed')
+# @when_not('leadership.is_leader')
+# def change_slave():
+#     render_slave_config()
+#     restart(None)
 
 
 def render_slave_config():
