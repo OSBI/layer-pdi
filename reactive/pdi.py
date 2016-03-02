@@ -10,7 +10,6 @@ from charmhelpers.fetch.archiveurl import ArchiveUrlFetchHandler
 from charms.reactive import when, when_not, set_state, remove_state, is_state
 from charms.reactive.helpers import data_changed
 from charmhelpers.core.templating import render
-from socket import gethostname;
 from charms.leadership import leader_set, leader_get
 
 
@@ -50,7 +49,7 @@ def scheduled_restart(java):
 
 @when('java.ready')
 @when('pdi.installed')
-@when_not('pdi.restarting')
+@when_not('pdi.restart_scheduled')
 def check_running(java):
     if data_changed('pdi.url', hookenv.config('pdi_url')):
         stop()
@@ -117,7 +116,6 @@ def change_carte_password(pword):
     #    text_file.write("cluster: " + encrpword.decode('utf-8'))
     chown('/opt/data-integration/encr.sh', 'etl', 'etl')
 
-@when('pdi.installed')
 @when('leadership.is_leader')
 def change_leader():
     leader_set(hostname=hookenv.unit_private_ip())
@@ -128,16 +126,16 @@ def change_leader():
 @when('leadership.is_leader', 'leadership.changed')
 def update_master_config():
     render_master_config()
-    #set_state("pdi.restart_scheduled")
-    restart(None)
+    set_state("pdi.restart_scheduled")
+    #restart(None)
 
 
 @when('leadership.changed')
 @when_not('leadership.is_leader')
 def update_slave_config():
     render_slave_config()
-    #set_state("pdi.restart_scheduled")
-    restart(None)
+    set_state("pdi.restart_scheduled")
+    #restart(None)
 
 
 def render_slave_config():
