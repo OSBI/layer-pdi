@@ -42,6 +42,7 @@ def install():
 
 @when('java.ready')
 @when('pdi.installed')
+@when('leadership.set.init')
 def check_running(java):
     if data_changed('pdi.url', hookenv.config('pdi_url')):
         stop()
@@ -88,7 +89,7 @@ def start():
                    env=currentenv, cwd="/opt/data-integration")
 
     hookenv.open_port(port)
-    status_set('active', 'Carte is ready! Master is:' + leader_get('hostname'))
+    status_set('active', 'Carte is ready! Master is:' + leader_get('public_ip'))
 
 
 def stop():
@@ -108,27 +109,31 @@ def change_carte_password(pword):
 
 
 @when('leadership.is_leader')
-@when_not('leadership.changed')
 def add_leader_config():
-    render_master_config
-
+    render_master_config()
 
 @when_not('leadership.is_leader')
-@when_not('leadership.changed')
 def add_slave_config():
     render_slave_config()
 
 
 @when('leadership.changed')
+@when('leadership.is_leader')
 def change_leader():
     leader_set(hostname=hookenv.unit_private_ip())
+    leader_set(public_ip=hookenv.unit_public_ip())
     leader_set(port=hookenv.config('carte_port'))
     leader_set(username='cluster')
     leader_set(password=hookenv.config('carte_password'))
+    leader_set(init=True)
     render_master_config()
-    render_slave_config()
     restart(None)
 
+@when('leadership.changed')
+@when_not('leadership.is_leader')
+def change_slave():
+    render_slave_config()
+    restart(None)
 
 
 def render_slave_config():
@@ -140,6 +145,7 @@ def render_slave_config():
         'cartemasterpassword': leader_get('password'),
         'cartemasterport': hookenv.config('carte_port')
     })
+
 
 def render_master_config():
     render('carte-config/master.xml.j2', '/opt/data-integration/pwd/carte-config.xml', {
