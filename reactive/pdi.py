@@ -83,18 +83,12 @@ def start():
     try:
         check_call(['pgrep', '-f', 'carte.sh'])
     except CalledProcessError:
-        if is_state('leader.is_leader'):
-            check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh '
-                                           '/opt/data-integration/pwd/carte-config-master.xml &'],
-                       env=currentenv, cwd="/opt/data-integration")
-        else:
-            check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh '
-                                           '/opt/data-integration/pwd/carte-config-slave.xml &'],
-                       env=currentenv, cwd="/opt/data-integration")
-
+        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh '
+                                       '/opt/data-integration/pwd/carte-config.xml &'],
+                   env=currentenv, cwd="/opt/data-integration")
 
     hookenv.open_port(port)
-    status_set('active', 'Carte is ready!')
+    status_set('active', 'Carte is ready! Master is:' + leader_get('hostname'))
 
 
 def stop():
@@ -114,25 +108,41 @@ def change_carte_password(pword):
 
 
 @when('leadership.is_leader')
-@when_not('leadership.set.config_file')
+@when_not('leadership.changed')
 def add_leader_config():
-    # leadership.leader_set(admin_password=pwgen())
-    render('carte-config/master.xml.j2', '/opt/data-integration/pwd/carte-config-master.xml', {
-        'carteport': hookenv.config('carte_port'),
-        'cartehostname': gethostname()
-    })
-    leader_set(hostname=gethostname())
-    leader_set(port=hookenv.config('carte_port'))
-    leader_set(username='cluster')
-    leader_set(password=hookenv.config('carte_password'))
-
+    render_master_config
 
 
 @when_not('leadership.is_leader')
-@when_not('leadership.set.hostname')
+@when_not('leadership.changed')
 def add_slave_config():
-    render('carte-config/slave.xml.j2', '/opt/data-integration/pwd/carte-config-slave.xml', {
+    render_slave_config()
+
+
+@when('leadership.changed')
+def change_leader():
+    leader_set(hostname=hookenv.unit_private_ip())
+    leader_set(port=hookenv.config('carte_port'))
+    leader_set(username='cluster')
+    leader_set(password=hookenv.config('carte_password'))
+    render_master_config()
+    render_slave_config()
+    restart(None)
+
+
+
+def render_slave_config():
+    render('carte-config/slave.xml.j2', '/opt/data-integration/pwd/carte-config.xml', {
         'carteslaveport': hookenv.config('carte_port'),
-        'carteslavehostname': gethostname(),
-        'cartemasterhostname': leader_get('hostname')
+        'carteslavehostname': hookenv.unit_private_ip(),
+        'cartemasterhostname': leader_get('hostname'),
+        'carteslavepassword': leader_get('password'),
+        'cartemasterpassword': leader_get('password'),
+        'cartemasterport': hookenv.config('carte_port')
+    })
+
+def render_master_config():
+    render('carte-config/master.xml.j2', '/opt/data-integration/pwd/carte-config.xml', {
+        'carteport': hookenv.config('carte_port'),
+        'cartehostname': hookenv.unit_private_ip()
     })
