@@ -42,7 +42,15 @@ def install():
 
 @when('java.ready')
 @when('pdi.installed')
-@when('leadership.set.init')
+@when('pdi.restart_scheduled')
+def scheduled_restart(java):
+    restart(java)
+    remove_state('pdi.restart_scheduled')
+
+
+@when('java.ready')
+@when('pdi.installed')
+@when('pdi.layer_initialised')
 def check_running(java):
     if data_changed('pdi.url', hookenv.config('pdi_url')):
         stop()
@@ -101,10 +109,10 @@ def remove():
 
 
 def change_carte_password(pword):
-    process = check_output(['sh', '/opt/data-integration/encr.sh', '-carte', pword])
-    encrpword = process.splitlines()[-1]
-    with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
-        text_file.write("cluster: " + encrpword.decode('utf-8'))
+    # process = check_output(['sh', '/opt/data-integration/encr.sh', '-carte', pword])
+    # encrpword = process.splitlines()[-1]
+    # with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
+    #    text_file.write("cluster: " + encrpword.decode('utf-8'))
     chown('/opt/data-integration/encr.sh', 'etl', 'etl')
 
 
@@ -113,19 +121,20 @@ def change_leader():
     leader_set(hostname=hookenv.unit_private_ip())
     leader_set(public_ip=hookenv.unit_public_ip())
     leader_set(username='cluster')
-    leader_set(init=True)
 
 
 @when('leadership.is_leader', 'leadership.changed')
 def update_master_config():
     render_master_config()
-    restart(None)
+    set_state("pdi.restart_scheduled")
+
 
 @when('leadership.changed')
 @when_not('leadership.is_leader')
 def update_slave_config():
     render_slave_config()
-    restart(None)
+    set_state("pdi.restart_scheduled")
+
 
 # @when_not('pdi.leader_configured')
 # @when('leadership.is_leader')
