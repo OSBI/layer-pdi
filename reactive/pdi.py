@@ -109,19 +109,21 @@ def change_carte_password(pword):
 
 
 @when('leadership.is_leader')
-def add_leader_config():
-    render_master_config()
+def change_leader():
     leader_set(hostname=hookenv.unit_private_ip())
     leader_set(public_ip=hookenv.unit_public_ip())
-    leader_set(port=hookenv.config('carte_port'))
     leader_set(username='cluster')
-    leader_set(password=hookenv.config('carte_password'))
     leader_set(init=True)
-    set_state('pdi.leader_configured')
 
-@when_not('leadership.is_leader')
+
+@when('leadership.is_leader', 'leadership.changed')
+def update_master_config():
+    render_master_config()
+    restart(None)
+
 @when('leadership.changed')
-def change_slave():
+@when_not('leadership.is_leader')
+def update_slave_config():
     render_slave_config()
     restart(None)
 
