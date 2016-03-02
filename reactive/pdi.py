@@ -50,7 +50,7 @@ def scheduled_restart(java):
 
 @when('java.ready')
 @when('pdi.installed')
-@when('pdi.layer_initialised')
+@when_not('pdi.restarting')
 def check_running(java):
     if data_changed('pdi.url', hookenv.config('pdi_url')):
         stop()
@@ -75,9 +75,11 @@ def check_running(java):
 @when('pdi.installed')
 @when('java.updated')
 def restart(java):
+    set_state("pdi.restarting")
     status_set('maintenance', 'Configuration has changed, restarting Carte.')
     stop()
     start()
+    remove_state("pdi.restarting")
     remove_state('java.updated')
 
 
@@ -115,7 +117,7 @@ def change_carte_password(pword):
     #    text_file.write("cluster: " + encrpword.decode('utf-8'))
     chown('/opt/data-integration/encr.sh', 'etl', 'etl')
 
-
+@when('pdi.installed')
 @when('leadership.is_leader')
 def change_leader():
     leader_set(hostname=hookenv.unit_private_ip())
@@ -126,50 +128,16 @@ def change_leader():
 @when('leadership.is_leader', 'leadership.changed')
 def update_master_config():
     render_master_config()
-    set_state("pdi.restart_scheduled")
+    #set_state("pdi.restart_scheduled")
+    restart(None)
 
 
 @when('leadership.changed')
 @when_not('leadership.is_leader')
 def update_slave_config():
     render_slave_config()
-    set_state("pdi.restart_scheduled")
-
-
-# @when_not('pdi.leader_configured')
-# @when('leadership.is_leader')
-# def add_leader_config():
-#     render_master_config()
-#     leader_set(hostname=hookenv.unit_private_ip())
-#     leader_set(public_ip=hookenv.unit_public_ip())
-#     leader_set(port=hookenv.config('carte_port'))
-#     leader_set(username='cluster')
-#     leader_set(password=hookenv.config('carte_password'))
-#     leader_set(init=True)
-#     set_state('pdi.leader_configured')
-#
-# @when_not('leadership.is_leader')
-# def add_slave_config():
-#     render_slave_config()
-#
-#
-# @when('leadership.changed')
-# @when('leadership.is_leader')
-# def change_leader():
-#     leader_set(hostname=hookenv.unit_private_ip())
-#     leader_set(public_ip=hookenv.unit_public_ip())
-#     leader_set(port=hookenv.config('carte_port'))
-#     leader_set(username='cluster')
-#     leader_set(password=hookenv.config('carte_password'))
-#     leader_set(init=True)
-#     render_master_config()
-#     restart(None)
-#
-# @when('leadership.changed')
-# @when_not('leadership.is_leader')
-# def change_slave():
-#     render_slave_config()
-#     restart(None)
+    #set_state("pdi.restart_scheduled")
+    restart(None)
 
 
 def render_slave_config():
@@ -177,8 +145,8 @@ def render_slave_config():
         'carteslaveport': hookenv.config('carte_port'),
         'carteslavehostname': hookenv.unit_private_ip(),
         'cartemasterhostname': leader_get('hostname'),
-        'carteslavepassword': leader_get('password'),
-        'cartemasterpassword': leader_get('password'),
+        'carteslavepassword': hookenv.config('carte_password'),
+        'cartemasterpassword': hookenv.config('carte_password'),
         'cartemasterport': hookenv.config('carte_port')
     })
 
