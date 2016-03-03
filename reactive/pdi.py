@@ -85,6 +85,7 @@ def restart(java):
     remove_state('java.updated')
     remove_state('pdi.restart_scheduled')
 
+
 @when('leadership.is_leader')
 def change_leader():
     leader_set(hostname=hookenv.unit_private_ip())
@@ -94,6 +95,7 @@ def change_leader():
     leader_set(port=hookenv.config('carte_port'))
     render_master_config()
 
+
 @when_not('leadership.is_leader')
 def update_slave_config():
     render_slave_config()
@@ -101,6 +103,7 @@ def update_slave_config():
 
 @when('leadership.changed')
 def update_master_config():
+    log("leadership has changed, scheduling restart")
     set_state("pdi.restart_scheduled")
 
 
@@ -131,7 +134,7 @@ def start():
         currentenv['JAVA_OPTS'] = javaopts
 
     try:
-        check_call(['pgrep', '-f', 'carte.sh'])
+        check_call(['pgrep', '-f', 'org.pentaho.di.www.Carte'])
     except CalledProcessError:
         check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh /home/etl/carte-config.xml &'],
                    env=currentenv, cwd="/opt/data-integration")
@@ -141,7 +144,7 @@ def start():
 
 
 def stop():
-    call(['pkill', '-f', 'carte.sh'])
+    call(['pkill', '-f', 'org.pentaho.di.www.Carte'])
 
 
 def remove():
@@ -149,8 +152,9 @@ def remove():
 
 
 def change_carte_password(pword):
-    process = check_output(['su', 'etl', '-c', '/opt/data-integration/encr.sh -carte', pword])
+    log("altering carte password to: " + pword)
+    process = check_output(['su', 'etl', '-c', '/opt/data-integration/encr.sh -carte ' + pword])
     encrpword = process.splitlines()[-1]
-    log("encrypted password is: "+encrpword.decode('utf-8'))
+    log("encrypted password is: " + encrpword.decode('utf-8'))
     with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
         text_file.write("cluster: " + encrpword.decode('utf-8'))
