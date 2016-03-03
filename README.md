@@ -1,5 +1,7 @@
 # Overview
 
+** Please note this charm is not maintained by Pentaho, please contact Meteorite Consulting for more information **
+
 This charm provides Pentaho Data Integration 6 for Extract, Transform
 and Load operations flexibly on a single server.
 
@@ -55,11 +57,8 @@ running:
 
 # Limitations
 
-This charm does not currently have any config options, nor does it scale.
-This may change if other relations are added that would benefit from such
-functionality.
 
 
 # Contact Information
 
-- <kevin.monroe@canonical.com>
+- <tom@analytical-labs.com>
