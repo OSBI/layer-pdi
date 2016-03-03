@@ -4,7 +4,7 @@ from shutil import rmtree, chown
 from subprocess import check_call, CalledProcessError, call, check_output
 
 from charmhelpers.core import hookenv
-from charmhelpers.core.hookenv import status_set
+from charmhelpers.core.hookenv import status_set, log
 from charmhelpers.core.host import adduser, chownr, mkdir
 from charmhelpers.fetch.archiveurl import ArchiveUrlFetchHandler
 from charms.reactive import when, when_not, set_state, remove_state, is_state
@@ -44,7 +44,6 @@ def install():
 @when('pdi.restart_scheduled')
 def scheduled_restart(java):
     restart(java)
-    remove_state('pdi.restart_scheduled')
 
 
 @when('java.ready')
@@ -60,13 +59,17 @@ def check_running(java):
         change_carte_password(hookenv.config('carte_password'))
 
     if data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte'):
+        log("config changed, carte needs to be restarted")
         restart(None)
     elif data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte') is False:
+        log("config changed, carte needs to be stopped if running")
         stop()
         status_set('active', 'PDI Installed. Carte Server Disabled.')
     elif hookenv.config('run_carte'):
+        log("carte should be running")
         start()
     elif hookenv.config('run_carte') is False:
+        log("carte should be stopped")
         stop()
         status_set('active', 'PDI Installed. Carte Server Disabled.')
 
@@ -80,6 +83,43 @@ def restart(java):
     start()
     remove_state("pdi.restarting")
     remove_state('java.updated')
+    remove_state('pdi.restart_scheduled')
+
+@when('leadership.is_leader')
+def change_leader():
+    leader_set(hostname=hookenv.unit_private_ip())
+    leader_set(public_ip=hookenv.unit_public_ip())
+    leader_set(username='cluster')
+    leader_set(password=hookenv.config('carte_password'))
+    leader_set(port=hookenv.config('carte_port'))
+    render_master_config()
+
+@when_not('leadership.is_leader')
+def update_slave_config():
+    render_slave_config()
+
+
+@when('leadership.changed')
+def update_master_config():
+    set_state("pdi.restart_scheduled")
+
+
+def render_slave_config():
+    render('carte-config/slave.xml.j2', '/home/etl/carte-config.xml', {
+        'carteslaveport': leader_get('port'),
+        'carteslavehostname': hookenv.unit_private_ip(),
+        'cartemasterhostname': leader_get('hostname'),
+        'carteslavepassword': leader_get('password'),
+        'cartemasterpassword': leader_get('password'),
+        'cartemasterport': leader_get('port')
+    })
+
+
+def render_master_config():
+    render('carte-config/master.xml.j2', '/home/etl/carte-config.xml', {
+        'carteport': leader_get('port'),
+        'cartehostname': hookenv.unit_private_ip()
+    })
 
 
 def start():
@@ -93,8 +133,7 @@ def start():
     try:
         check_call(['pgrep', '-f', 'carte.sh'])
     except CalledProcessError:
-        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh '
-                                       '/opt/data-integration/pwd/carte-config.xml &'],
+        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh /home/etl/carte-config.xml &'],
                    env=currentenv, cwd="/opt/data-integration")
 
     hookenv.open_port(port)
@@ -110,47 +149,8 @@ def remove():
 
 
 def change_carte_password(pword):
-    # process = check_output(['sh', '/opt/data-integration/encr.sh', '-carte', pword])
-    # encrpword = process.splitlines()[-1]
-    # with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
-    #    text_file.write("cluster: " + encrpword.decode('utf-8'))
-    chown('/opt/data-integration/encr.sh', 'etl', 'etl')
-
-@when('leadership.is_leader')
-def change_leader():
-    leader_set(hostname=hookenv.unit_private_ip())
-    leader_set(public_ip=hookenv.unit_public_ip())
-    leader_set(username='cluster')
-
-
-@when('leadership.is_leader', 'leadership.changed')
-def update_master_config():
-    render_master_config()
-    set_state("pdi.restart_scheduled")
-    #restart(None)
-
-
-@when('leadership.changed')
-@when_not('leadership.is_leader')
-def update_slave_config():
-    render_slave_config()
-    set_state("pdi.restart_scheduled")
-    #restart(None)
-
-
-def render_slave_config():
-    render('carte-config/slave.xml.j2', '/opt/data-integration/pwd/carte-config.xml', {
-        'carteslaveport': hookenv.config('carte_port'),
-        'carteslavehostname': hookenv.unit_private_ip(),
-        'cartemasterhostname': leader_get('hostname'),
-        'carteslavepassword': hookenv.config('carte_password'),
-        'cartemasterpassword': hookenv.config('carte_password'),
-        'cartemasterport': hookenv.config('carte_port')
-    })
-
-
-def render_master_config():
-    render('carte-config/master.xml.j2', '/opt/data-integration/pwd/carte-config.xml', {
-        'carteport': hookenv.config('carte_port'),
-        'cartehostname': hookenv.unit_private_ip()
-    })
+    process = check_output(['su', 'etl', '-c', '/opt/data-integration/encr.sh -carte', pword])
+    encrpword = process.splitlines()[-1]
+    log("encrypted password is: "+encrpword.decode('utf-8'))
+    with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
+        text_file.write("cluster: " + encrpword.decode('utf-8'))
