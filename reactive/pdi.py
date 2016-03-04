@@ -49,7 +49,7 @@ def scheduled_restart(java):
 @when('java.ready')
 @when('pdi.installed')
 @when_not('pdi.restart_scheduled')
-def check_running(java):
+def check_running(java=None):
     if data_changed('pdi.url', hookenv.config('pdi_url')):
         stop()
         remove()
