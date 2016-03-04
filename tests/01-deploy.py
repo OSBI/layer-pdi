@@ -22,13 +22,11 @@ class TestDeploy(unittest.TestCase):
         cls.d.expose('pdi')
 
     def test_running_carte(self):
-        commands = ['bzr version', 'cvs version',
-                    'git version', 'svn --version --quiet']
-        for cmd in commands:
-            print("running {}".format(cmd))
-            output, rc = self.unit.run(cmd)
-            print("output from cmd: {}".format(output))
-            assert rc == 0, "Unexpected return code: {}".format(rc)
+        output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
+        print(output)
+        if code != 0:
+            message = 'Carte is not running!'
+            amulet.raise_status(amulet.FAIL, msg=message)
 
     def test_stop_start_carte(self):
 
