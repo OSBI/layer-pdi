@@ -7,3 +7,4 @@ packages:
     - amulet
     - python-requests
     - python-flake8
+reset: true
