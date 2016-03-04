@@ -13,8 +13,8 @@ class TestDeploy(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.d = amulet.Deployment(series='trusty')
-        cls.d.add('pdi', 'cs:~f-tom-n/trusty/pentahodataintegration-1')
-        cls.d.add('openjdk', 'cs:~kwmonroe/trusty/openjdk-5')
+        cls.d.add('pdi', 'pentahodataintegration')
+        cls.d.add('openjdk', 'cs:~kwmonroe/trusty/openjdk')
         cls.d.relate('pdi:java', 'openjdk:java')
         cls.d.setup(timeout=900)
         cls.d.sentry.wait(timeout=1800)
@@ -38,7 +38,7 @@ class TestDeploy(unittest.TestCase):
 
         self.d.configure('pdi', {'run_carte': False})
         self.d.sentry.wait()
-        output2, code2 = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
+        output2, code2 = self. unit.run('pgrep -f org.pentaho.di.www.Carte')
         print(output2)
         if code2 == 0:
             message = 'Carte is still running!'
