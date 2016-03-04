@@ -6,3 +6,6 @@ all: lint
 lint:
 	@flake8 --exclude hooks/charmhelpers hooks tests
 	@charm proof
+
+build:
+	@charm build --force
