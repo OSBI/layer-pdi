@@ -1,11 +1,10 @@
 #!/usr/bin/make
 PYTHON := /usr/bin/env python
 
-all: lint
+all: lint build
 
 lint:
-	@flake8 --exclude hooks/charmhelpers hooks tests
-	@charm proof
+	@flake8 reactive tests
 
 build:
 	@charm build --force

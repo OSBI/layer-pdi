@@ -1,13 +1,13 @@
 import os
 import stat
-from shutil import rmtree, chown
+from shutil import rmtree
 from subprocess import check_call, CalledProcessError, call, check_output
 
 from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import status_set, log
 from charmhelpers.core.host import adduser, chownr, mkdir
 from charmhelpers.fetch.archiveurl import ArchiveUrlFetchHandler
-from charms.reactive import when, when_not, set_state, remove_state, is_state
+from charms.reactive import when, when_not, set_state, remove_state
 from charms.reactive.helpers import data_changed
 from charmhelpers.core.templating import render
 from charms.leadership import leader_set, leader_get
@@ -58,10 +58,12 @@ def check_running(java=None):
     if (data_changed('carte_password', hookenv.config())):
         change_carte_password(hookenv.config('carte_password'))
 
-    if data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte'):
+    if data_changed('pdi.config', hookenv.config()) \
+            and hookenv.config('run_carte'):
         log("config changed, carte needs to be restarted")
         restart(None)
-    elif data_changed('pdi.config', hookenv.config()) and hookenv.config('run_carte') is False:
+    elif data_changed('pdi.config', hookenv.config()) \
+            and hookenv.config('run_carte') is False:
         log("config changed, carte needs to be stopped if running")
         stop()
         status_set('active', 'PDI Installed. Carte Server Disabled.')
@@ -136,11 +138,14 @@ def start():
     try:
         check_call(['pgrep', '-f', 'org.pentaho.di.www.Carte'])
     except CalledProcessError:
-        check_call(['su', 'etl', '-c', '/opt/data-integration/carte.sh /home/etl/carte-config.xml &'],
+        check_call(['su', 'etl', '-c',
+                    '/opt/data-integration/carte.sh '
+                    '/home/etl/carte-config.xml &'],
                    env=currentenv, cwd="/opt/data-integration")
 
     hookenv.open_port(port)
-    status_set('active', 'Carte is ready! Master is:' + leader_get('public_ip'))
+    status_set('active',
+               'Carte is ready! Master is:' + leader_get('public_ip'))
 
 
 def stop():
@@ -153,7 +158,8 @@ def remove():
 
 def change_carte_password(pword):
     log("altering carte password to: " + pword)
-    process = check_output(['su', 'etl', '-c', '/opt/data-integration/encr.sh -carte ' + pword])
+    process = check_output(['su', 'etl', '-c',
+                            '/opt/data-integration/encr.sh -carte ' + pword])
     encrpword = process.splitlines()[-1]
     log("encrypted password is: " + encrpword.decode('utf-8'))
     with open("/opt/data-integration/pwd/kettle.pwd", "w") as text_file:
