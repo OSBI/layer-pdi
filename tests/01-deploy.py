@@ -37,7 +37,7 @@ class TestDeploy(unittest.TestCase):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'run_carte': False})
-
+        d.sentry.wait()
         output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
         print(output)
         if code == 0:
@@ -45,7 +45,7 @@ class TestDeploy(unittest.TestCase):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'run_carte': True})
-
+        d.sentry.wait()
         output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
         print(output)
         if code != 0:
@@ -63,7 +63,7 @@ class TestDeploy(unittest.TestCase):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'carte_password': 'mynewpassword'})
-
+        d.sentry.wait()
         output, code = self.unit.run('curl --fail ' +
                                      self.unit.info['public-address'] +
                                      ':9999 --user cluster:cluster')
@@ -90,7 +90,7 @@ class TestDeploy(unittest.TestCase):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'carte_port': '9998'})
-
+        d.sentry.wait()
         output, code = self.unit.run('curl --fail ' +
                                      self.unit.info['public-address'] +
                                      ':9999 --user cluster:cluster')

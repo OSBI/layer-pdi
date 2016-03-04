@@ -89,7 +89,7 @@ def restart(java):
 
 
 @when('leadership.is_leader')
-def change_leader():
+def config_leader():
     leader_set(hostname=hookenv.unit_private_ip())
     leader_set(public_ip=hookenv.unit_public_ip())
     leader_set(username='cluster')
