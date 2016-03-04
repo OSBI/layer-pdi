@@ -1,2 +1,4 @@
 packages:
   - amulet
+  - curl
+bootstrap: false
