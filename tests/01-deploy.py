@@ -38,16 +38,16 @@ class TestDeploy(unittest.TestCase):
 
         self.d.configure('pdi', {'run_carte': False})
         self.d.sentry.wait()
-        output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
-        print(output)
-        if code == 0:
+        output2, code2 = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
+        print(output2)
+        if code2 == 0:
             message = 'Carte is still running!'
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'run_carte': True})
         self.d.sentry.wait()
-        output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
-        print(output)
+        output3, code3 = self.unit.run('pgrep -f org.pentaho.di.www.Carte')
+        print(output3)
         if code != 0:
             message = 'Carte is not running!'
             amulet.raise_status(amulet.FAIL, msg=message)
