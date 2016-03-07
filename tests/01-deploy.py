@@ -39,8 +39,7 @@ class TestDeploy(unittest.TestCase):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'run_carte': False})
-        self.d.wait_for_messages({'pdi': 'PDI Installed. '
-                                         'Carte Server Disabled.'})
+        self.d.sentry.wait()
         output2, code2 = self. unit.run('pgrep -af org.pentaho.di.www.Carte '
                                         '| grep -v pgrep')
         print(output2)
