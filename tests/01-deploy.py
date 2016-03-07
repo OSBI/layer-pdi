@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import unittest
 import amulet
+import unittest
 from subprocess import check_call
 
 
@@ -41,8 +41,8 @@ class TestDeploy(unittest.TestCase):
 
         self.d.configure('pdi', {'run_carte': False})
         self.d.sentry.wait()
-        output2, code2 = self. unit.run('pgrep -af org.pentaho.di.www.Carte '
-                                        '| grep -v pgrep')
+        output2, code2 = self.unit.run('pgrep -af org.pentaho.di.www.Carte '
+                                       '| grep -v pgrep')
         print(output2)
         if code2 == 0:
             message = 'Carte is still running!'
@@ -114,44 +114,48 @@ class TestDeploy(unittest.TestCase):
 
     def test_run_transformation_action(self):
         check_call(['juju', 'scp',
-           'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
-        id =self.d.action_do('pdi/0',
-                     'runtransformation', {"path":'/tmp/test_transformation.ktr'})
-        self.assertEqual({'outcome': 'ETL execution finished'}, self.d.action_fetch(id))
+                    'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
+        id = self.d.action_do('pdi/0',
+                              'runtransformation',
+                              {"path": '/tmp/test_transformation.ktr'})
+        self.assertEqual({'outcome': 'ETL execution finished'},
+                         self.d.action_fetch(id))
 
     def test_run_job_action(self):
         check_call(['juju', 'scp',
-           'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
+                    'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
         check_call(['juju', 'scp',
-           'tests/files/test_job.kjb', 'pdi/0:/tmp'])
+                    'tests/files/test_job.kjb', 'pdi/0:/tmp'])
 
-        id =self.d.action_do('pdi/0',
-                    'runjob', {"path":'/tmp/test_job.ktr'})
-        self.assertEqual({'outcome': 'ETL execution finished'}, self.d.action_fetch(id))
-
+        id = self.d.action_do('pdi/0',
+                              'runjob', {"path": '/tmp/test_job.ktr'})
+        self.assertEqual({'outcome': 'ETL execution finished'},
+                         self.d.action_fetch(id))
 
     def test_schedule_transformation_action(self):
         check_call(['juju', 'scp',
                     'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
-        id =self.d.action_do('pdi/0',
-                             'runtransformation', {"path":'/tmp/test_transformation.ktr', "cron-entry": '0 0 * * *'})
+        id = self.d.action_do('pdi/0',
+                              'runtransformation',
+                              {"path": '/tmp/test_transformation.ktr',
+                               "cron-entry": '0 0 * * *'})
         self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
-
 
     def test_schedule_job_action(self):
         check_call(['juju', 'scp',
                     'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
-        id =self.d.action_do('pdi/0',
-                             'runtransformation', {"path":'/tmp/test_transformation.kjb', "cron-entry": '0 0 * * *'})
+        id = self.d.action_do('pdi/0',
+                              'runtransformation',
+                              {"path": '/tmp/test_transformation.kjb',
+                               "cron-entry": '0 0 * * *'})
         self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
 
-            # def test_leader_election_failover:
-            # spin up 3 nodes
-            # find leader
-            # check configs
-            # kill leader
-            # check configs
-
+        # def test_leader_election_failover:
+        # spin up 3 nodes
+        # find leader
+        # check configs
+        # kill leader
+        # check configs
 
 
 if __name__ == '__main__':
