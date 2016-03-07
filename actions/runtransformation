@@ -3,9 +3,9 @@ set -ex
 
 
 TRANSPATH=`action-get path`
-JAVAOPTS=`action-get java_opts`
-LOGLEVEL=`action-get log_level`
-LOGFILE=`action-get log_file`
+JAVAOPTS=`action-get java-opts`
+LOGLEVEL=`action-get log-level`
+LOGFILE=`action-get log-file`
 PARAMS=`action-get parameters`
 CRON=`action-get cron-entry`
 
@@ -41,11 +41,12 @@ if [ -z "${CRON}" ];
   eval "${ETLEXE}"
   action-set outcome="ETL execution finished"
  else
+  CRON_NO_WHITESPACE="$(echo -e "${CRON}" | tr -d '[[:space:]]')"
   juju-log "Scheduling ETL: ${TRANSPATH} at ${CRON}"
   echo "# /etc/cron.d/anacron: crontab entries for the anacron package
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ${CRON}   etl    ${ETLEXE}
-" > /etc/cron.d/$(basename ${TRANSPATH})_$(cat /proc/sys/kernel/random/uuid)
+" > /etc/cron.d/transformation_$(basename ${TRANSPATH})_${CRON_NO_WHITESPACE}
    action-set outcome="ETL scheduled"
 fi

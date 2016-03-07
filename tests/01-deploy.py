@@ -57,7 +57,7 @@ class TestDeploy(unittest.TestCase):
             message = 'Carte is not running!'
             amulet.raise_status(amulet.FAIL, msg=message)
 
-    def change_password_carte(self):
+    def test_change_password_carte(self):
 
         output, code = self.unit.run('curl --fail ' +
                                      self.unit.info['public-address'] +
@@ -85,7 +85,7 @@ class TestDeploy(unittest.TestCase):
             message = 'Could not login to carte with new password!'
             amulet.raise_status(amulet.FAIL, msg=message)
 
-    def change_carte_port(self):
+    def test_change_carte_port(self):
         output, code = self.unit.run('curl --fail ' +
                                      self.unit.info['public-address'] +
                                      ':9999 --user cluster:cluster')
@@ -112,29 +112,39 @@ class TestDeploy(unittest.TestCase):
             message = 'Could not login to carte with new port!'
             amulet.raise_status(amulet.FAIL, msg=message)
 
-    def run_transformation_action(self):
+    def test_run_transformation_action(self):
         check_call(['juju', 'scp',
-                    'files/test_transformation.ktr', 'pdi/0:/tmp'])
-        self.d.action_do(self, self.unit,
-                         'runtransformation', '/tmp/test_transformation.ktr')
+           'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
+        id =self.d.action_do('pdi/0',
+                     'runtransformation', {"path":'/tmp/test_transformation.ktr'})
+        self.assertEqual({'outcome': 'ETL execution finished'}, self.d.action_fetch(id))
 
-            # def run_job_action:
-            # upload job
-            # check job runs
+    def test_run_job_action(self):
+        check_call(['juju', 'scp',
+           'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
+        check_call(['juju', 'scp',
+           'tests/files/test_job.kjb', 'pdi/0:/tmp'])
 
-            # def schedule_transformation_action:
-            # upload transformation
-            # schedule
-            # check scheduled
-            # unschedule
-            # check unscheduled
+        id =self.d.action_do('pdi/0',
+                    'runjob', {"path":'/tmp/test_job.ktr'})
+        self.assertEqual({'outcome': 'ETL execution finished'}, self.d.action_fetch(id))
 
-            # def schedule_job_action:
-            # upload job
-            # schedule
-            # check scheduled
-            # unschedule
-            # check unscheduled
+
+    def test_schedule_transformation_action(self):
+        check_call(['juju', 'scp',
+                    'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
+        id =self.d.action_do('pdi/0',
+                             'runtransformation', {"path":'/tmp/test_transformation.ktr', "cron-entry": '0 0 * * *'})
+        self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
+
+
+    def test_schedule_job_action(self):
+        check_call(['juju', 'scp',
+                    'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
+        id =self.d.action_do('pdi/0',
+                             'runtransformation', {"path":'/tmp/test_transformation.kjb', "cron-entry": '0 0 * * *'})
+        self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
+
             # def test_leader_election_failover:
             # spin up 3 nodes
             # find leader
@@ -142,12 +152,6 @@ class TestDeploy(unittest.TestCase):
             # kill leader
             # check configs
 
-    def test_java(self):
-        cmd = "java -version 2>&1"
-        print("running {}".format(cmd))
-        output, rc = self.unit.run(cmd)
-        print("output from cmd: {}".format(output))
-        assert rc == 0, "Unexpected return code: {}".format(rc)
 
 
 if __name__ == '__main__':

@@ -3,9 +3,9 @@ set -ex
 
 
 path=`action-get path`
-javaopts=`action-get java_opts`
-loglevel=`action-get log_level`
-logfile=`action-get log_file`
+javaopts=`action-get java-opts`
+loglevel=`action-get log-level`
+logfile=`action-get log-file`
 params=`action-get parameters`
 cron=`action-get cron-entry`
 

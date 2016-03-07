@@ -4,19 +4,19 @@ runjob:
      path:
        type: string
        description: Path to the job to be executed.
-     java_opts:
+     java-opts:
        type: string
        description: Override the default JAVA_OPTS
-     log_level:
+     log-level:
        type: string
        description: The PDI logging level (Basic, Detailed, Debug, Rowlevel, Error, Nothing)
-     log_file:
+     log-file:
         type: string
         description: The log file location
      parameters:
          type: string
          description: The parameters defined in your PDI job.
-     cron_entry:
+     cron-entry:
          type: string
          description: The cron execution time and date(optional if you would like to schedule an execution)
   required: [path]
@@ -28,19 +28,19 @@ runtransformation:
         path:
             type: string
             description: Path of the Transformation to be executed.
-        java_opts:
+        java-opts:
             type: string
             description: Override the default JAVA_OPTS
-        log_level:
+        log-level:
             type: string
             description: The PDI logging level (Basic, Detailed, Debug, Rowlevel, Error, Nothing)
-        log_file:
+        log-file:
             type: string
             description: The log file location
         parameters:
             type: string
             description: The parameters defined in your PDI job.
-        cron_entry:
+        cron-entry:
             type: string
             description: The cron execution time and date(optional if you would like to schedule an execution)
 removeetlschedule:
