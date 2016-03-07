@@ -22,7 +22,8 @@ class TestDeploy(unittest.TestCase):
         cls.d.expose('pdi')
 
     def test_running_carte(self):
-        output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte |grep -v pgrep')
+        output, code = self.unit.run('pgrep -f org.pentaho.di.www.Carte '
+                                     '|grep -v pgrep')
         print(output)
         if code != 0:
             message = 'Carte is not running!'
@@ -30,15 +31,18 @@ class TestDeploy(unittest.TestCase):
 
     def test_stop_start_carte(self):
 
-        output, code = self.unit.run('pgrep -af org.pentaho.di.www.Cartep | grep -v pgrep')
+        output, code = self.unit.run('pgrep -af org.pentaho.di.www.Carte '
+                                     '| grep -v pgrep')
         print(output)
         if code != 0:
             message = 'Carte is not running!'
             amulet.raise_status(amulet.FAIL, msg=message)
 
         self.d.configure('pdi', {'run_carte': False})
-        self.d.wait_for_messages({'pdi': 'PDI Installed. Carte Server Disabled.'})
-        output2, code2 = self. unit.run('pgrep -af org.pentaho.di.www.Carte | grep -v pgrep')
+        self.d.wait_for_messages({'pdi': 'PDI Installed. '
+                                         'Carte Server Disabled.'})
+        output2, code2 = self. unit.run('pgrep -af org.pentaho.di.www.Carte '
+                                        '| grep -v pgrep')
         print(output2)
         if code2 == 0:
             message = 'Carte is still running!'
@@ -46,7 +50,8 @@ class TestDeploy(unittest.TestCase):
 
         self.d.configure('pdi', {'run_carte': True})
         self.d.sentry.wait()
-        output3, code3 = self.unit.run('pgrep -af org.pentaho.di.www.Carte  |grep -v pgrep')
+        output3, code3 = self.unit.run('pgrep -af org.pentaho.di.www.Carte  '
+                                       '|grep -v pgrep')
         print(output3)
         if code != 0:
             message = 'Carte is not running!'
