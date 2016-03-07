@@ -4,6 +4,7 @@ import unittest
 import amulet
 from subprocess import check_call
 
+
 class TestDeploy(unittest.TestCase):
     """
     Deployment test for the Pentaho Data Integration charm.
@@ -112,8 +113,10 @@ class TestDeploy(unittest.TestCase):
             amulet.raise_status(amulet.FAIL, msg=message)
 
     def run_transformation_action(self):
-      check_call(['juju', 'scp', 'files/test_transformation.ktr', 'pdi/0:/tmp'])
-      self.d.action_do(self, self.unit, 'runtransformation', '/tmp/test_transformation.ktr')
+        check_call(['juju', 'scp',
+                    'files/test_transformation.ktr', 'pdi/0:/tmp'])
+        self.d.action_do(self, self.unit,
+                         'runtransformation', '/tmp/test_transformation.ktr')
 
             # def run_job_action:
             # upload job
