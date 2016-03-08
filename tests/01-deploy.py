@@ -57,61 +57,6 @@ class TestDeploy(unittest.TestCase):
             message = 'Carte is not running!'
             amulet.raise_status(amulet.FAIL, msg=message)
 
-    def test_change_password_carte(self):
-
-        output, code = self.unit.run('curl --fail ' +
-                                     self.unit.info['public-address'] +
-                                     ':9999 --user cluster:cluster')
-        print(output)
-        if code != 0:
-            message = 'Could not login to carte!'
-            amulet.raise_status(amulet.FAIL, msg=message)
-
-        self.d.configure('pdi', {'carte_password': 'mynewpassword'})
-        self.d.sentry.wait()
-        output, code = self.unit.run('curl --fail ' +
-                                     self.unit.info['public-address'] +
-                                     ':9999 --user cluster:cluster')
-        print(output)
-        if code == 0:
-            message = 'Logged in with the old login details'
-            amulet.raise_status(amulet.FAIL, msg=message)
-
-        output, code = self.unit.run('curl --fail ' +
-                                     self.unit.info['public-address'] +
-                                     ':9999 --user cluster:mynewpassword')
-        print(output)
-        if code != 0:
-            message = 'Could not login to carte with new password!'
-            amulet.raise_status(amulet.FAIL, msg=message)
-
-    def test_change_carte_port(self):
-        output, code = self.unit.run('curl --fail ' +
-                                     self.unit.info['public-address'] +
-                                     ':9999 --user cluster:cluster')
-        print(output)
-        if code != 0:
-            message = 'Could not login to carte!'
-            amulet.raise_status(amulet.FAIL, msg=message)
-
-        self.d.configure('pdi', {'carte_port': '9998'})
-        self.d.sentry.wait()
-        output, code = self.unit.run('curl --fail ' +
-                                     self.unit.info['public-address'] +
-                                     ':9999 --user cluster:cluster')
-        print(output)
-        if code == 0:
-            message = 'Logged in with the old port'
-            amulet.raise_status(amulet.FAIL, msg=message)
-
-        output, code = self.unit.run('curl --fail ' +
-                                     self.unit.info['public-address'] +
-                                     ':9998 --user cluster:cluster')
-        print(output)
-        if code != 0:
-            message = 'Could not login to carte with new port!'
-            amulet.raise_status(amulet.FAIL, msg=message)
-
     def test_run_transformation_action(self):
         check_call(['juju', 'scp',
                     'tests/files/test_transformation.ktr', 'pdi/0:/tmp'])
@@ -150,23 +95,6 @@ class TestDeploy(unittest.TestCase):
                                "cron-entry": '0 0 * * *'})
         self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
 
-    def test_leader_election_failover(self):
-        unit = self.d.sentry['pdi'][0].info
-        message = unit['workload-status'].get('message')
-        ip = message.split(':', 1)[-1]
-        self.d.add_unit('pdi', 2)
-        #self.d.sentry.wait_for_messages({'pdi': 'leadership has changed, scheduling restart'})
-        self.d.sentry.wait_for_messages({'pdi': 'Initializing Leadership Layer (is follower)'})
-        message2 = unit['workload-status'].get('message')
-        ip2 = message.split(':', 1)[-1]
-
-        self.assertNotEqual(ip, ip2)
-
-
-        # find leader
-        # check configs
-        # kill leader
-        # check configs
 
 
 if __name__ == '__main__':
