@@ -95,7 +95,5 @@ class TestDeploy(unittest.TestCase):
                                "cron-entry": '0 0 * * *'})
         self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
 
-
-
 if __name__ == '__main__':
     unittest.main()

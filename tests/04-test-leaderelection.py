@@ -2,7 +2,6 @@
 
 import amulet
 import unittest
-from subprocess import check_call
 
 
 class TestDeploy(unittest.TestCase):
