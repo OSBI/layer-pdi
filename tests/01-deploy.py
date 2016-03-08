@@ -150,8 +150,18 @@ class TestDeploy(unittest.TestCase):
                                "cron-entry": '0 0 * * *'})
         self.assertEqual({'outcome': 'ETL scheduled'}, self.d.action_fetch(id))
 
-        # def test_leader_election_failover:
-        # spin up 3 nodes
+    def test_leader_election_failover(self):
+        unit = self.d.sentry['pdi'][0].info
+        message = unit['workload-status'].get('message')
+        ip = message.split(':', 1)[-1]
+        self.d.add_unit('pdi', 2)
+        self.d.sentry.wait_for_messages({'pdi': 'leadership has changed, scheduling restart'})
+        message2 = unit['workload-status'].get('message')
+        ip2 = message.split(':', 1)[-1]
+
+        self.assertNotEqual(ip, ip2)
+
+
         # find leader
         # check configs
         # kill leader
