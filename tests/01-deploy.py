@@ -155,7 +155,8 @@ class TestDeploy(unittest.TestCase):
         message = unit['workload-status'].get('message')
         ip = message.split(':', 1)[-1]
         self.d.add_unit('pdi', 2)
-        self.d.sentry.wait_for_messages({'pdi': 'leadership has changed, scheduling restart'})
+        #self.d.sentry.wait_for_messages({'pdi': 'leadership has changed, scheduling restart'})
+        self.d.sentry.wait_for_messages({'pdi': 'Initializing Leadership Layer (is follower)'})
         message2 = unit['workload-status'].get('message')
         ip2 = message.split(':', 1)[-1]
 
