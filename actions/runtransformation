@@ -41,12 +41,11 @@ if [ -z "${CRON}" ];
   eval "${ETLEXE}"
   action-set outcome="ETL execution finished"
  else
-  CRON_NO_WHITESPACE="$(echo -e "${CRON}" | tr -d '[[:space:]]')"
   juju-log "Scheduling ETL: ${TRANSPATH} at ${CRON}"
   echo "# /etc/cron.d/anacron: crontab entries for the anacron package
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ${CRON}   etl    ${ETLEXE}
-" > /etc/cron.d/transformation_$(basename ${TRANSPATH})_${CRON_NO_WHITESPACE}
+" > /etc/cron.d/transformation_$(basename ${TRANSPATH})_${CRON}
    action-set outcome="ETL scheduled"
 fi

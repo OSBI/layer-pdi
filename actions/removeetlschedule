@@ -1,2 +1,41 @@
 #!/usr/bin/env bash
 
+set -ex
+
+CRON=`action-get cron-entry`
+NAME=`action-get name`
+
+FILENAME=$(basename "$NAME")
+EXTENSION="${FILENAME##*.}"
+FILENAME="${FILENAME%.*}"
+
+
+if [ ${EXTENSION} = "ktr" ]
+then
+    PREFIX="transformation_";
+elif [ ${EXTENSION} = "kjb" ]
+then
+    PREFIX="job_";
+else
+    action-set outcome="Unrecognised file format";
+    exit 1;
+fi
+
+if [ -z "${CRON}" ]
+then
+    rm /etc/cron.d/${PREFIX}${NAME}*
+    if [ $? -eq 0 ]
+    then
+       action-set output="File Deleted";
+    else
+       action-set output="Delete action failed";
+    fi
+else
+    rm /etc/cron.d/${PREFIX}${NAME}"_"${CRON}
+    if [ $? -eq 0 ]
+    then
+       action-set output="File Deleted";
+    else
+       action-set output="Delete action failed";
+    fi
+fi

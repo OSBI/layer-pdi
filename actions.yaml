@@ -43,12 +43,20 @@ runtransformation:
         cron-entry:
             type: string
             description: The cron execution time and date(optional if you would like to schedule an execution)
+    required: [path]
 removeetlschedule:
      description: Remove a scheduled ETL.
      params:
-         cron_entry:
+         cron-entry:
             type: string
             description: The cron execution time and date(optional if you would like to schedule an execution)
          name:
             type: string
             description: The name of the ETL to remove(including .ktr or .kjb)
+     required: [name]
+getscheduledetl:
+     description: List scheduled ETL
+     params:
+        type:
+            type: string
+            enum: [transformations, jobs, all]

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -ex
+
+
+TYPE=`action-get type`
+
+if [ $TYPE = "transformations" ]; then
+     REBASED_TYPE="transformation_"
+elif [ $TYPE = "jobs" ]; then
+     REBASED_TYPE="job_"
+else
+     REBASED_TYPE=""
+fi
+
+
+OUTPUT=""
+for f in /etc/cron.d/*; do
+FILENAME=$(basename "$f")
+   if [[ $FILENAME == "$REBASED_TYPE"* ]]; then
+     IFS='_'
+     read -r KEY VALUE <<< "${FILENAME}"
+
+     read -r KEY2 VALUE2 <<< "$VALUE"
+
+     OUTPUT+="FILENAME=${KEY2}, CRONTAB=${VALUE2}\n"
+   fi
+done
+
+
+
+action-set outcome="$OUTPUT"
+
+
