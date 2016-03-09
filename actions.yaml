@@ -21,7 +21,6 @@ runjob:
          description: The cron execution time and date(optional if you would like to schedule an execution)
   required: [path]
   additionalProperties: true
-
 runtransformation:
     description: Execute a Transformation that has been placed on the server.
     params:

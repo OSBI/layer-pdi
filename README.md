@@ -21,7 +21,7 @@ of Java.
 
 To deploy this PDI charm you run:
 
-    juju deploy cs:~f-tom-n/trusty/pentahodataintegration pdi
+    juju deploy cs:~spicule/trusty/pentahodataintegration pdi
     juju deploy cs:~kwmonroe/trusty/openjdk java
     juju add-relation java pdi
 
