@@ -26,16 +26,16 @@ class TestDeploy(unittest.TestCase):
         message = unit['workload-status'].get('message')
         ip = message.split(':', 1)[-1]
         self.d.add_unit('pdi', 2)
-        # self.d.sentry.wait_for_messages
-        # ({'pdi': 'leadership has changed, scheduling restart'})
-        self.d.sentry.wait_for_messages(
-            {'pdi': 'Initializing Leadership Layer'
-             ' (is follower)'})
-        # message2 = unit['workload-status'].get('message')
-        ip2 = message.split(':', 1)[-1]
+        self.d.sentry.wait()
+        message2 = unit['workload-status'].get('message')
+        ip2 = message2.split(':', 1)[-1]
+        self.assertEqual(ip, ip2)
+        self.d.remove_unit('pdi/0')
+        self.d.wait()
+        message3 = unit['workload-status'].get('message')
+        ip3 = message3.split(':', 1)[-1]
 
-        self.assertNotEqual(ip, ip2)
-
+        self.assertNotEqual(ip3, ip2)
 
 if __name__ == '__main__':
     unittest.main()

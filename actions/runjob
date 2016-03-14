@@ -50,6 +50,6 @@ if [ -z "${cron}" ]
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ${cron}   etl    ${exe}
-" > /etc/cron.d/job_$(basename ${path})_${cron}
+" > "/etc/cron.d/job_$(basename ${path})_${cron}"
    action-set outcome="ETL scheduled"
 fi

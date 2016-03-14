@@ -46,6 +46,6 @@ if [ -z "${CRON}" ];
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ${CRON}   etl    ${ETLEXE}
-" > /etc/cron.d/transformation_$(basename ${TRANSPATH})_${CRON}
+" > "/etc/cron.d/transformation_$(basename ${TRANSPATH})_${CRON}"
    action-set outcome="ETL scheduled"
 fi
