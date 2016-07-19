@@ -1,1 +1,1 @@
-includes: ['layer:basic', 'interface:java', 'layer:leadership']
+includes: ['layer:basic', 'interface:java', 'layer:leadership', 'layer:hadoop-client']

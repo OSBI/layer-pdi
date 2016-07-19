@@ -11,3 +11,8 @@ provides:
   java:
     interface: java
     scope: container
+resources:
+  pdi-archive:
+    type: file
+    filename: pdi-6.1.tar.bz2
+    description: compressed archive of PDI

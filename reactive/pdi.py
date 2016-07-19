@@ -7,10 +7,11 @@ from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import status_set, log
 from charmhelpers.core.host import adduser, chownr, mkdir
 from charmhelpers.fetch.archiveurl import ArchiveUrlFetchHandler
-from charms.reactive import when, when_not, set_state, remove_state
+from charms.reactive import when, when_not, set_state, remove_state, when_any
 from charms.reactive.helpers import data_changed
 from charmhelpers.core.templating import render
 from charms.leadership import leader_set, leader_get
+import tarfile
 
 
 @when_not('java.ready')
@@ -26,8 +27,11 @@ def install():
     chownr('/home/etl', 'etl', 'etl', chowntopdir=True)
     os.chmod('/home/etl', 0o755)
 
-    au = ArchiveUrlFetchHandler()
-    au.install(hookenv.config()['pdi_url'], '/opt/')
+    #au = ArchiveUrlFetchHandler()
+    #au.install(hookenv.config()['pdi_url'], '/opt/')
+    pdiarchive = hookenv.resource_get('pdi-archive')
+    tar = tarfile.open(pdiarchive)
+    tar.extractall("/opt/")
     chownr('/opt/data-integration', 'etl', 'etl', chowntopdir=True)
     st = os.stat('/opt/data-integration/spoon.sh')
     os.chmod('/opt/data-integration/spoon.sh', st.st_mode | stat.S_IEXEC)
@@ -37,6 +41,11 @@ def install():
     os.chmod('/opt/data-integration/pan.sh', st.st_mode | stat.S_IEXEC)
     status_set('maintenance', 'PDI Installed')
     set_state('pdi.installed')
+
+# @when_any('leadership.changed.master-fqdn', 'hadoop.yarn.ready',
+#           'hadoop.hdfs.ready', 'spark.started', 'zookeeper.ready')
+# @when('bigtop.available')
+# def reconfigure_hadoop():
 
 
 @when('java.ready')
@@ -106,6 +115,7 @@ def update_slave_config():
 @when('leadership.changed')
 def update_master_config():
     log("leadership has changed, scheduling restart")
+    status_set('maintenance', 'Leadership changed, restart scheduled.')
     set_state("pdi.restart_scheduled")
 
 
